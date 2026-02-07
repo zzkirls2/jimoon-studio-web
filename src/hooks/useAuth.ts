@@ -53,7 +53,7 @@ export function useAuth() {
   );
 
   const signInWithOAuth = useCallback(
-    async (provider: "google" | "github") => {
+    async (provider: "google") => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
