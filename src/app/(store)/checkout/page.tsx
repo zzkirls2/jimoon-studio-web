@@ -61,54 +61,9 @@ export default function CheckoutPage() {
     try {
       const paymentId = `order_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
-      // PortOne v2 SDK 동적 로드
-      let PortOne: typeof import("@portone/browser-sdk/v2") | null = null;
-      try {
-        PortOne = await import("@portone/browser-sdk/v2");
-      } catch {
-        PortOne = null;
-      }
-
-      if (!PortOne) {
-        // PortOne SDK 미설치 시 데모 모드
-        await simulateDemoPayment(paymentId);
-        return;
-      }
-
-      const response = await PortOne.requestPayment({
-        storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
-        channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
-        paymentId,
-        orderName:
-          items.length === 1
-            ? items[0].book.title
-            : `${items[0].book.title} 외 ${items.length - 1}건`,
-        totalAmount: totalPrice(),
-        currency: "CURRENCY_KRW",
-        payMethod: "CARD",
-      });
-
-      if (response && !response.code) {
-        // 서버에서 결제 검증
-        const confirmRes = await fetch("/api/payment/confirm", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            paymentId,
-            orderId: paymentId,
-            amount: totalPrice(),
-          }),
-        });
-
-        if (confirmRes.ok) {
-          clearCart();
-          router.push(`/checkout/complete?orderId=${paymentId}`);
-        } else {
-          setError("결제 확인에 실패했습니다. 고객센터에 문의해 주세요.");
-        }
-      } else {
-        setError(response?.message || "결제가 취소되었습니다.");
-      }
+      // TODO: 사업자 등록 후 PortOne 결제 모듈 연동 예정
+      // 현재는 데모 모드로 동작
+      await simulateDemoPayment(paymentId);
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "결제 처리 중 오류가 발생했습니다.";
