@@ -9,16 +9,19 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/";
-  const { signInWithEmail, signInWithOAuth } = useAuth();
+  const { signInWithEmail, signUpWithEmail, signInWithOAuth } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setShowSignupPrompt(false);
     setLoading(true);
 
     try {
@@ -27,7 +30,31 @@ function LoginForm() {
       router.refresh();
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "로그인에 실패했습니다.";
+        err instanceof Error ? err.message : "";
+      if (message.includes("Invalid login credentials")) {
+        setShowSignupPrompt(true);
+      } else {
+        setError(message || "로그인에 실패했습니다.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignup = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const data = await signUpWithEmail(email, password, email.split("@")[0]);
+      if (data.user?.identities?.length === 0) {
+        setError("이미 가입된 이메일입니다.");
+      } else {
+        setSignupSuccess(true);
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "회원가입에 실패했습니다.";
       setError(message);
     } finally {
       setLoading(false);
@@ -44,20 +71,51 @@ function LoginForm() {
     }
   };
 
+  if (signupSuccess) {
+    return (
+      <div className="text-center">
+        <div className="w-16 h-px bg-neutral-300 mx-auto mb-8" />
+        <h1 className="text-3xl font-extralight text-neutral-900 mb-4">
+          Check Your Email
+        </h1>
+        <p className="text-sm text-neutral-400 leading-relaxed mb-8">
+          확인 메일을 보냈습니다.
+          <br />
+          <span className="text-neutral-700">{email}</span>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="mb-10">
         <h1 className="text-3xl font-extralight text-neutral-900 mb-2">
-          Welcome Back
+          Welcome
         </h1>
         <p className="text-sm text-neutral-400">
-          Sign in to continue to your account
+          로그인 또는 새 계정을 만드세요
         </p>
       </div>
 
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-sm rounded-sm">
           {error}
+        </div>
+      )}
+
+      {showSignupPrompt && (
+        <div className="mb-6 p-5 bg-neutral-50 border border-neutral-200 rounded-sm">
+          <p className="text-sm text-neutral-600 mb-4">
+            가입되지 않은 계정입니다. 이 정보로 가입하시겠습니까?
+          </p>
+          <button
+            onClick={handleSignup}
+            disabled={loading}
+            className="w-full py-3 bg-neutral-900 text-white text-sm tracking-[0.1em] uppercase hover:bg-neutral-800 transition-colors duration-300 disabled:opacity-50"
+          >
+            {loading ? "처리 중..." : "가입하기"}
+          </button>
         </div>
       )}
 
@@ -104,7 +162,7 @@ function LoginForm() {
           disabled={loading}
           className="w-full py-3.5 bg-neutral-900 text-white text-sm tracking-[0.1em] uppercase hover:bg-neutral-800 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Signing in..." : "Sign In"}
+          {loading ? "처리 중..." : "계속하기"}
         </button>
       </form>
 
@@ -141,12 +199,12 @@ function LoginForm() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          Continue with Google
+          Google로 계속하기
         </button>
       </div>
 
       <p className="mt-8 text-center text-sm text-neutral-400">
-        Don&apos;t have an account?{" "}
+        계정이 없으신가요?{" "}
         <Link
           href="/signup"
           className="text-neutral-900 hover:underline underline-offset-4"
