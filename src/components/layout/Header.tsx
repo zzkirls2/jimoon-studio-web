@@ -61,25 +61,25 @@ export default function Header() {
         ref={headerRef}
         className="fixed top-0 left-0 w-full z-50 transition-none"
       >
-        <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-20">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-24">
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
               src="/logo.svg"
               alt="지문"
-              width={40}
-              height={40}
+              width={48}
+              height={48}
               priority
             />
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-10">
+          <nav className="hidden md:flex items-center gap-12">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm tracking-wider text-neutral-500 hover:text-neutral-900 transition-colors duration-300"
+                className="text-base tracking-wider text-neutral-500 hover:text-neutral-900 transition-colors duration-300"
               >
                 {item.label}
               </Link>
@@ -87,11 +87,11 @@ export default function Header() {
           </nav>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-8">
             {/* Cart */}
             <Link
               href="/cart"
-              className="relative text-sm tracking-wider text-neutral-500 hover:text-neutral-900 transition-colors duration-300"
+              className="relative text-base tracking-wider text-neutral-500 hover:text-neutral-900 transition-colors duration-300"
             >
               Cart
               {cartCount > 0 && (
@@ -111,7 +111,7 @@ export default function Header() {
                     </span>
                     <button
                       onClick={handleSignOut}
-                      className="text-sm tracking-wider text-neutral-500 hover:text-neutral-900 transition-colors duration-300"
+                      className="text-base tracking-wider text-neutral-500 hover:text-neutral-900 transition-colors duration-300"
                     >
                       Logout
                     </button>
@@ -119,7 +119,7 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/login"
-                    className="hidden md:block text-sm tracking-wider text-neutral-500 hover:text-neutral-900 transition-colors duration-300"
+                    className="hidden md:block text-base tracking-wider text-neutral-500 hover:text-neutral-900 transition-colors duration-300"
                   >
                     Login
                   </Link>
