@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { gsap } from "@/lib/gsap/register";
 import { useAuth } from "@/hooks/useAuth";
@@ -62,11 +63,14 @@ export default function Header() {
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-20">
           {/* Logo */}
-          <Link
-            href="/"
-            className="text-lg font-light tracking-[0.2em] uppercase text-neutral-900"
-          >
-            Publisher
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo.svg"
+              alt="지문"
+              width={40}
+              height={40}
+              priority
+            />
           </Link>
 
           {/* Desktop Nav */}
