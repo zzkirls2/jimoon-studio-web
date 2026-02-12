@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCartStore } from "@/stores/cart";
 import { useAuth } from "@/hooks/useAuth";
-import { formatPrice } from "@/lib/books/data";
+import { formatPrice } from "@/lib/books/constants";
 import FadeIn from "@/components/animations/FadeIn";
 
 export default function CheckoutPage() {

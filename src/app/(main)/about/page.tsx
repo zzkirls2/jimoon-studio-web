@@ -1,7 +1,8 @@
-export default function AboutPage() {
-  return (
-    <div className="min-h-screen pt-32 max-w-7xl mx-auto px-6 md:px-12">
-      <h1 className="text-4xl font-light">About</h1>
-    </div>
-  );
+import { getSerialPosts } from "@/lib/serial/data";
+import SerialListContent from "@/components/SerialListContent";
+
+export default async function SerialPage() {
+  const posts = await getSerialPosts();
+
+  return <SerialListContent posts={posts} />;
 }

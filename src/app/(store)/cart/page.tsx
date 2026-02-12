@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCartStore } from "@/stores/cart";
-import { formatPrice } from "@/lib/books/data";
+import { formatPrice } from "@/lib/books/constants";
 import FadeIn from "@/components/animations/FadeIn";
 
 const COVER_COLORS: Record<string, string> = {

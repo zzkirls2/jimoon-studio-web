@@ -145,14 +145,13 @@ export default function Footer() {
     <>
       <footer className="bg-[#fef9f3]">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-6 flex flex-col items-start gap-1">
-          <p className="text-sm font-bold text-black mb-1">zzkirls2@gmail.com</p>
           <button
             onClick={() => setOpen(true)}
-            className="text-xs text-black hover:text-[#b5737a] transition-colors cursor-pointer"
+            className="text-xs text-black/50 hover:text-[#b5737a] transition-colors cursor-pointer"
           >
             이용약관
           </button>
-          <p className="text-xs text-black tracking-wider">
+          <p className="text-xs text-black/50 tracking-wider">
             &copy; {new Date().getFullYear()} 출판사 지문. All rights reserved.
           </p>
         </div>

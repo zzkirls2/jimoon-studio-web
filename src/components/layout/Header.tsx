@@ -10,6 +10,7 @@ import { useCartStore } from "@/stores/cart";
 
 const navItems = [
   { label: "책", href: "/books" },
+  { label: "연재", href: "/about" },
 ];
 
 export default function Header() {
