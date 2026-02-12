@@ -30,17 +30,17 @@ function CompleteContent() {
             </svg>
           </div>
 
-          <h1 className="text-3xl font-extralight text-neutral-900 mb-4">
+          <h1 className="text-3xl font-extralight text-black mb-4">
             Order Complete
           </h1>
 
-          <p className="text-sm text-neutral-400 leading-relaxed mb-3">
+          <p className="text-sm text-black/60 leading-relaxed mb-3">
             Thank you for your purchase. Your order has been confirmed
             and will be shipped within 2-3 business days.
           </p>
 
           {orderId && (
-            <p className="text-xs text-neutral-300 mb-10">
+            <p className="text-xs text-black/40 mb-10">
               Order ID: {orderId}
             </p>
           )}
@@ -48,13 +48,13 @@ function CompleteContent() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/books"
-              className="inline-block border border-neutral-900 text-neutral-900 px-8 py-3 text-sm tracking-[0.1em] uppercase hover:bg-neutral-900 hover:text-white transition-all duration-300"
+              className="inline-block border border-[#5d6a7a] text-[#5d6a7a] px-8 py-3 text-sm tracking-[0.1em] uppercase hover:bg-[#b5737a] hover:text-white hover:border-[#b5737a] transition-all duration-300"
             >
               Continue Shopping
             </Link>
             <Link
               href="/"
-              className="text-sm text-neutral-400 hover:text-neutral-700 transition-colors"
+              className="text-sm text-black/50 hover:text-[#b5737a] transition-colors"
             >
               Back to Home
             </Link>

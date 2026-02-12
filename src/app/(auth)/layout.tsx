@@ -8,8 +8,8 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen flex">
       {/* 좌측: 브랜드 패널 */}
-      <div className="hidden lg:flex lg:w-1/2 bg-neutral-900 relative overflow-hidden items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900" />
+      <div className="hidden lg:flex lg:w-1/2 bg-[#5d6a7a] relative overflow-hidden items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#5d6a7a] via-[#6d7a8a] to-[#5d6a7a]" />
         <div className="relative z-10 px-16 max-w-lg">
           <Link
             href="/"

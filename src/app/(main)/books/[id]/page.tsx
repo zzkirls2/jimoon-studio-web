@@ -1,184 +1,154 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getBookById, formatPrice } from "@/lib/books/data";
-import { useCartStore } from "@/stores/cart";
 import FadeIn from "@/components/animations/FadeIn";
-import { useState } from "react";
+import BookImageCarousel from "@/components/BookImageCarousel";
 
 const COVER_COLORS: Record<string, string> = {
   "1": "#e8e0d4",
-  "2": "#d4dce8",
-  "3": "#dce8d4",
-  "4": "#e8d4d4",
-  "5": "#d4e8e4",
-  "6": "#e4dce8",
 };
+
+const STORE_BUTTONS = [
+  { key: "kyobo", label: "교보문고" },
+  { key: "aladin", label: "알라딘" },
+  { key: "yes24", label: "YES24" },
+  { key: "ypbooks", label: "영풍문고" },
+] as const;
 
 export default function BookDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const book = getBookById(params.id as string);
-  const addItem = useCartStore((s) => s.addItem);
-  const [added, setAdded] = useState(false);
 
   if (!book) {
     return (
       <div className="min-h-screen pt-32 flex flex-col items-center justify-center">
-        <p className="text-neutral-400 mb-6">Book not found.</p>
+        <p className="text-black mb-6">책을 찾을 수 없습니다.</p>
         <Link
           href="/books"
-          className="text-sm text-neutral-900 underline underline-offset-4"
+          className="text-sm text-black underline underline-offset-4"
         >
-          Back to Books
+          목록으로 돌아가기
         </Link>
       </div>
     );
   }
 
-  const handleAddToCart = () => {
-    addItem(book);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
-  };
-
   return (
     <div className="min-h-screen pt-32 pb-24 max-w-7xl mx-auto px-6 md:px-12">
       {/* Breadcrumb */}
       <FadeIn>
-        <nav className="flex items-center gap-2 text-xs text-neutral-400 mb-16">
-          <Link href="/books" className="hover:text-neutral-700 transition-colors">
-            Books
+        <nav className="flex items-center gap-2 text-base text-black mb-16">
+          <Link href="/books" className="hover:text-[#b5737a] transition-colors">
+            책
           </Link>
           <span>/</span>
-          <span className="text-neutral-600">{book.title}</span>
+          <span>{book.title}</span>
         </nav>
       </FadeIn>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
         {/* Cover */}
-        <FadeIn direction="left">
-          <div className="perspective-[1200px]">
-            <div
-              className="relative aspect-[3/4] rounded-sm overflow-hidden max-w-md mx-auto lg:mx-0"
-              style={{
-                backgroundColor: COVER_COLORS[book.id] || "#e5e5e5",
-                transformStyle: "preserve-3d",
-                boxShadow: "0 8px 40px rgba(0,0,0,0.12)",
-              }}
-            >
-              <div className="absolute inset-0 flex flex-col justify-end p-10">
-                <div className="w-10 h-px bg-neutral-400/40 mb-5" />
-                <p className="text-xs tracking-[0.2em] uppercase text-neutral-500/60 mb-2">
-                  {book.category.replace("-", " ")}
-                </p>
-                <h2 className="text-xl font-light text-neutral-700 leading-snug mb-2">
-                  {book.title}
-                </h2>
-                <p className="text-sm text-neutral-500/60">{book.author}</p>
-              </div>
-              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-black/5" />
-            </div>
-          </div>
-        </FadeIn>
+        <div className="max-w-md mx-auto lg:mx-0">
+          <BookImageCarousel
+            images={book.images}
+            fallbackColor={COVER_COLORS[book.id] || "#e5e5e5"}
+            title={book.title}
+            author={book.author}
+            clickToFlip
+          />
+        </div>
 
         {/* Details */}
         <div className="flex flex-col justify-center">
           <FadeIn delay={0.1}>
-            <p className="text-xs tracking-[0.2em] uppercase text-neutral-400 mb-4">
-              {book.category.replace("-", " ")}
-            </p>
-          </FadeIn>
-
-          <FadeIn delay={0.15}>
-            <h1 className="text-3xl md:text-4xl font-extralight text-neutral-900 mb-3 leading-tight">
+            <h1 className="text-3xl md:text-4xl font-extralight text-black mb-3 leading-tight">
               {book.title}
             </h1>
           </FadeIn>
 
-          <FadeIn delay={0.2}>
-            <p className="text-base text-neutral-500 mb-8">by {book.author}</p>
+          <FadeIn delay={0.15}>
+            <p className="text-base text-black mb-8">{book.author}</p>
           </FadeIn>
 
-          <FadeIn delay={0.25}>
-            <p className="text-neutral-400 text-sm leading-[1.8] mb-10">
+          <FadeIn delay={0.2}>
+            <p className="text-black text-sm leading-[1.8] mb-10">
               {book.description}
             </p>
           </FadeIn>
 
-          <FadeIn delay={0.3}>
-            <div className="flex items-center gap-8 mb-10 pb-10 border-b border-neutral-100">
-              <div>
-                <p className="text-[10px] tracking-[0.15em] uppercase text-neutral-400 mb-1">
-                  Pages
-                </p>
-                <p className="text-sm text-neutral-700">{book.pages}</p>
-              </div>
-              <div className="w-px h-8 bg-neutral-100" />
-              <div>
-                <p className="text-[10px] tracking-[0.15em] uppercase text-neutral-400 mb-1">
-                  ISBN
-                </p>
-                <p className="text-sm text-neutral-700">{book.isbn}</p>
-              </div>
-              <div className="w-px h-8 bg-neutral-100" />
-              <div>
-                <p className="text-[10px] tracking-[0.15em] uppercase text-neutral-400 mb-1">
-                  Published
-                </p>
-                <p className="text-sm text-neutral-700">
-                  {new Date(book.published_at).toLocaleDateString("ko-KR", {
-                    year: "numeric",
-                    month: "long",
-                  })}
-                </p>
-              </div>
+          {/* 도서 정보 */}
+          <FadeIn delay={0.25}>
+            <div className="mb-10 pb-10 border-b border-[#e8c4b8]/30">
+              <table className="w-full text-sm">
+                <tbody className="[&_tr]:border-b [&_tr]:border-[#e8c4b8]/20 [&_td]:py-3">
+                  <tr>
+                    <td className="text-black w-24">저자</td>
+                    <td className="text-black">{book.author}</td>
+                  </tr>
+                  <tr>
+                    <td className="text-black">출판사</td>
+                    <td className="text-black">{book.publisher}</td>
+                  </tr>
+                  <tr>
+                    <td className="text-black">발행일</td>
+                    <td className="text-black">
+                      {new Date(book.published_at).toLocaleDateString("ko-KR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="text-black">ISBN</td>
+                    <td className="text-black">{book.isbn}</td>
+                  </tr>
+                  <tr>
+                    <td className="text-black">쪽수</td>
+                    <td className="text-black">{book.pages}쪽</td>
+                  </tr>
+                  <tr>
+                    <td className="text-black">크기</td>
+                    <td className="text-black">{book.size}</td>
+                  </tr>
+                  <tr>
+                    <td className="text-black">제본</td>
+                    <td className="text-black">{book.binding}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </FadeIn>
 
-          <FadeIn delay={0.35}>
-            <div className="flex items-center gap-6">
-              <p className="text-2xl font-extralight text-neutral-900">
-                {formatPrice(book.price)}
-              </p>
+          {/* 가격 */}
+          <p className="text-2xl font-extralight text-black mb-8">
+            {formatPrice(book.price)}
+          </p>
 
-              {book.in_stock ? (
-                <button
-                  onClick={handleAddToCart}
-                  className={`flex-1 py-3.5 text-sm tracking-[0.1em] uppercase transition-all duration-300 ${
-                    added
-                      ? "bg-green-800 text-white"
-                      : "bg-neutral-900 text-white hover:bg-neutral-800"
-                  }`}
-                >
-                  {added ? "Added to Cart" : "Add to Cart"}
-                </button>
-              ) : (
-                <button
-                  disabled
-                  className="flex-1 py-3.5 text-sm tracking-[0.1em] uppercase bg-neutral-200 text-neutral-400 cursor-not-allowed"
-                >
-                  Sold Out
-                </button>
-              )}
-            </div>
-          </FadeIn>
-
-          {added && (
-            <FadeIn>
-              <div className="mt-4 flex items-center gap-3">
-                <span className="text-sm text-green-700">
-                  Item added to cart.
-                </span>
-                <Link
-                  href="/cart"
-                  className="text-sm text-neutral-900 underline underline-offset-4"
-                >
-                  View Cart
-                </Link>
+          {/* 판매처 바로가기 */}
+          {book.store_links && (
+            <div>
+              <p className="text-xs text-black mb-4">도서 판매처</p>
+              <div className="flex flex-wrap gap-3">
+                {STORE_BUTTONS.map(({ key, label }) => {
+                  const url = book.store_links?.[key];
+                  if (!url) return null;
+                  return (
+                    <a
+                      key={key}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-5 py-2.5 text-sm rounded-full border border-black text-black hover:bg-black hover:text-[#fef9f3] transition-all duration-300"
+                    >
+                      {label}
+                    </a>
+                  );
+                })}
               </div>
-            </FadeIn>
+            </div>
           )}
         </div>
       </div>

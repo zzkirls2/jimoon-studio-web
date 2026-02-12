@@ -73,7 +73,7 @@ export default function SignupPage() {
         </p>
         <Link
           href="/login"
-          className="inline-block border border-neutral-900 text-neutral-900 px-8 py-3 text-sm tracking-[0.1em] uppercase hover:bg-neutral-900 hover:text-white transition-all duration-300"
+          className="inline-block border border-[#5d6a7a] text-[#5d6a7a] px-8 py-3 text-sm tracking-[0.1em] uppercase hover:bg-[#b5737a] hover:text-white hover:border-[#b5737a] transition-all duration-300"
         >
           Back to Login
         </Link>
@@ -176,7 +176,7 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 bg-neutral-900 text-white text-sm tracking-[0.1em] uppercase hover:bg-neutral-800 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3.5 bg-[#5d6a7a] text-white text-sm tracking-[0.1em] uppercase hover:bg-[#b5737a] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Creating account..." : "Create Account"}
         </button>
@@ -221,7 +221,7 @@ export default function SignupPage() {
         Already have an account?{" "}
         <Link
           href="/login"
-          className="text-neutral-900 hover:underline underline-offset-4"
+          className="text-[#5d6a7a] hover:text-[#b5737a] underline-offset-4"
         >
           Sign In
         </Link>

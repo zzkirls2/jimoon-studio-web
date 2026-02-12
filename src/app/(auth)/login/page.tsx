@@ -112,7 +112,7 @@ function LoginForm() {
           <button
             onClick={handleSignup}
             disabled={loading}
-            className="w-full py-3 bg-neutral-900 text-white text-sm tracking-[0.1em] uppercase hover:bg-neutral-800 transition-colors duration-300 disabled:opacity-50"
+            className="w-full py-3 bg-[#5d6a7a] text-white text-sm tracking-[0.1em] uppercase hover:bg-[#b5737a] transition-colors duration-300 disabled:opacity-50"
           >
             {loading ? "처리 중..." : "가입하기"}
           </button>
@@ -160,7 +160,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 bg-neutral-900 text-white text-sm tracking-[0.1em] uppercase hover:bg-neutral-800 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3.5 bg-[#5d6a7a] text-white text-sm tracking-[0.1em] uppercase hover:bg-[#b5737a] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "처리 중..." : "계속하기"}
         </button>
@@ -207,7 +207,7 @@ function LoginForm() {
         계정이 없으신가요?{" "}
         <Link
           href="/signup"
-          className="text-neutral-900 hover:underline underline-offset-4"
+          className="text-[#5d6a7a] hover:text-[#b5737a] underline-offset-4"
         >
           Sign Up
         </Link>

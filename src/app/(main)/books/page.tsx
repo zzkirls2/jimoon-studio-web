@@ -6,14 +6,10 @@ import { gsap, ScrollTrigger } from "@/lib/gsap/register";
 import { BOOKS, CATEGORIES, formatPrice } from "@/lib/books/data";
 import FadeIn from "@/components/animations/FadeIn";
 import TextSplit from "@/components/animations/TextSplit";
+import BookImageCarousel from "@/components/BookImageCarousel";
 
 const COVER_COLORS: Record<string, string> = {
   "1": "#e8e0d4",
-  "2": "#d4dce8",
-  "3": "#dce8d4",
-  "4": "#e8d4d4",
-  "5": "#d4e8e4",
-  "6": "#e4dce8",
 };
 
 export default function BooksPage() {
@@ -44,24 +40,6 @@ export default function BooksPage() {
 
   return (
     <div className="min-h-screen pt-32 pb-24 max-w-7xl mx-auto px-6 md:px-12">
-      {/* Header */}
-      <div className="mb-16">
-        <FadeIn>
-          <p className="text-xs tracking-[0.3em] uppercase text-neutral-400 mb-6">
-            Collection
-          </p>
-        </FadeIn>
-        <TextSplit className="text-4xl md:text-6xl font-extralight leading-tight tracking-tight text-neutral-900 mb-8">
-          Our Books
-        </TextSplit>
-        <FadeIn delay={0.2}>
-          <p className="text-neutral-400 text-base font-light max-w-lg leading-relaxed">
-            Each title is selected for its singular ability to illuminate,
-            provoke, and endure. Browse our complete catalog.
-          </p>
-        </FadeIn>
-      </div>
-
       {/* Category Filter */}
       <FadeIn delay={0.3}>
         <div className="flex flex-wrap gap-3 mb-16">
@@ -71,8 +49,8 @@ export default function BooksPage() {
               onClick={() => setActiveCategory(cat.slug)}
               className={`px-5 py-2 text-sm tracking-wider transition-all duration-300 ${
                 activeCategory === cat.slug
-                  ? "bg-neutral-900 text-white"
-                  : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+                  ? "bg-[#5d6a7a] text-white"
+                  : "bg-[#e8c4b8]/30 text-[#5d6a7a] hover:bg-[#e8c4b8]/50"
               }`}
             >
               {cat.name}
@@ -93,50 +71,31 @@ export default function BooksPage() {
             className="book-item group"
           >
             {/* Cover */}
-            <div className="perspective-[1200px] mb-6">
-              <div
-                className="relative aspect-[3/4] rounded-sm overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]"
-                style={{
-                  backgroundColor: COVER_COLORS[book.id] || "#e5e5e5",
-                  transformStyle: "preserve-3d",
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-                }}
-              >
-                <div className="absolute inset-0 flex flex-col justify-end p-6">
-                  <div className="w-6 h-px bg-neutral-400/40 mb-3" />
-                  <p className="text-[10px] tracking-[0.2em] uppercase text-neutral-500/60 mb-1.5">
-                    {book.category.replace("-", " ")}
-                  </p>
-                  <h3 className="text-base font-light text-neutral-700 leading-snug">
-                    {book.title}
-                  </h3>
-                </div>
-                <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-black/5" />
-
-                {!book.in_stock && (
-                  <div className="absolute top-4 right-4 px-3 py-1 bg-white/80 backdrop-blur-sm text-[10px] tracking-[0.15em] uppercase text-neutral-400">
-                    Sold Out
-                  </div>
-                )}
-              </div>
+            <div className="mb-6">
+              <BookImageCarousel
+                images={book.images}
+                fallbackColor={COVER_COLORS[book.id] || "#e5e5e5"}
+                title={book.title}
+                author={book.author}
+              />
             </div>
 
             {/* Info */}
-            <p className="text-[10px] tracking-[0.2em] uppercase text-neutral-400 mb-1.5">
+            <p className="text-[10px] tracking-[0.2em] uppercase text-black mb-1.5 group-hover:text-[#b5737a] transition-colors duration-300">
               {book.author}
             </p>
-            <h3 className="text-base font-light text-neutral-900 mb-1 group-hover:text-neutral-600 transition-colors duration-300">
+            <h3 className="text-base font-light text-black mb-1 group-hover:text-[#b5737a] transition-colors duration-300">
               {book.title}
             </h3>
-            <p className="text-sm text-neutral-400">{formatPrice(book.price)}</p>
+            <p className="text-sm text-black group-hover:text-[#b5737a] transition-colors duration-300">{formatPrice(book.price)}</p>
           </Link>
         ))}
       </div>
 
       {filteredBooks.length === 0 && (
         <div className="text-center py-24">
-          <p className="text-neutral-400 text-sm">
-            No books found in this category.
+          <p className="text-black/60 text-sm">
+            해당 카테고리에 책이 없습니다.
           </p>
         </div>
       )}
