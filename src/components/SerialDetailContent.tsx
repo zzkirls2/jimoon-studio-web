@@ -29,7 +29,7 @@ export default function SerialDetailContent({
       {/* Header */}
       <FadeIn>
         <Link
-          href="/about"
+          href="/serial"
           className="text-sm text-black hover:text-[#b5737a] transition-colors mb-8 inline-block"
         >
           &larr; 목록으로
@@ -67,7 +67,7 @@ export default function SerialDetailContent({
             {seriesPosts.map((sp, i) => (
               <Link
                 key={sp.id}
-                href={`/about/${sp.id}`}
+                href={`/serial/${sp.id}`}
                 className={`text-sm py-1 transition-colors duration-300 ${
                   sp.id === post.id
                     ? "text-[#b5737a] font-medium"
@@ -85,7 +85,7 @@ export default function SerialDetailContent({
       <div className="flex justify-between items-stretch gap-4 border-t border-black/10 pt-8">
         {prevPost ? (
           <Link
-            href={`/about/${prevPost.id}`}
+            href={`/serial/${prevPost.id}`}
             className="group flex-1 text-left"
           >
             <span className="text-xs text-black mb-1 block">이전글</span>
@@ -99,7 +99,7 @@ export default function SerialDetailContent({
 
         {nextPost ? (
           <Link
-            href={`/about/${nextPost.id}`}
+            href={`/serial/${nextPost.id}`}
             className="group flex-1 text-right"
           >
             <span className="text-xs text-black mb-1 block">다음글</span>

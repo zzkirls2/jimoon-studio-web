@@ -84,7 +84,7 @@ export default function SerialListContent({ posts }: { posts: SerialPost[] }) {
       <div ref={gridRef} className="flex flex-col gap-12">
         {paginatedPosts.map((post) => (
           <Link
-            href={`/about/${post.id}`}
+            href={`/serial/${post.id}`}
             key={post.id}
             className="serial-item group flex gap-6 md:gap-8"
           >

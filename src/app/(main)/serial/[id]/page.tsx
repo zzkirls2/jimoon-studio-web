@@ -19,7 +19,7 @@ export default async function SerialDetailPage({
       <div className="min-h-screen pt-32 flex flex-col items-center justify-center">
         <p className="text-black mb-6">글을 찾을 수 없습니다.</p>
         <Link
-          href="/about"
+          href="/serial"
           className="text-sm text-black underline underline-offset-4"
         >
           목록으로 돌아가기
