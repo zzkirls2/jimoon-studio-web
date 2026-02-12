@@ -30,20 +30,20 @@ export default function SerialDetailContent({
       <FadeIn>
         <Link
           href="/about"
-          className="text-sm text-black/40 hover:text-black transition-colors mb-8 inline-block"
+          className="text-sm text-black hover:text-[#b5737a] transition-colors mb-8 inline-block"
         >
           &larr; 목록으로
         </Link>
 
         {post.series_name && (
-          <p className="text-sm text-[#b5737a] mb-3">{post.series_name}</p>
+          <p className="text-sm text-black mb-3">{post.series_name}</p>
         )}
 
         <h1 className="text-3xl md:text-4xl font-extralight text-black mb-4 leading-tight">
           {post.title}
         </h1>
 
-        <div className="flex items-center gap-3 text-sm text-black/40 mb-12">
+        <div className="flex items-center gap-3 text-sm text-black mb-12">
           <span>{post.author}</span>
           <span>·</span>
           <span>{formatDate(post.published_at)}</span>
@@ -52,7 +52,7 @@ export default function SerialDetailContent({
 
       {/* Content */}
       <FadeIn delay={0.1}>
-        <article className="prose prose-neutral max-w-none mb-16 [&_p]:text-black/80 [&_p]:leading-[2] [&_h2]:text-black [&_h2]:font-light [&_h2]:text-xl [&_h3]:text-black [&_h3]:font-light [&_blockquote]:border-[#b5737a] [&_blockquote]:text-black/60 [&_a]:text-[#b5737a] [&_img]:rounded">
+        <article className="prose prose-neutral max-w-none mb-16 [&_p]:text-black [&_p]:leading-[2] [&_h2]:text-black [&_h2]:font-light [&_h2]:text-xl [&_h3]:text-black [&_h3]:font-light [&_blockquote]:border-[#b5737a] [&_blockquote]:text-black [&_a]:text-[#b5737a] [&_img]:rounded">
           <ReactMarkdown>{post.content}</ReactMarkdown>
         </article>
       </FadeIn>
@@ -71,7 +71,7 @@ export default function SerialDetailContent({
                 className={`text-sm py-1 transition-colors duration-300 ${
                   sp.id === post.id
                     ? "text-[#b5737a] font-medium"
-                    : "text-black/50 hover:text-black"
+                    : "text-black hover:text-[#b5737a]"
                 }`}
               >
                 {i + 1}. {sp.title}
@@ -88,8 +88,8 @@ export default function SerialDetailContent({
             href={`/about/${prevPost.id}`}
             className="group flex-1 text-left"
           >
-            <span className="text-xs text-black/30 mb-1 block">이전글</span>
-            <span className="text-sm text-black/70 group-hover:text-black transition-colors">
+            <span className="text-xs text-black mb-1 block">이전글</span>
+            <span className="text-sm text-black group-hover:text-[#b5737a] transition-colors">
               {prevPost.title}
             </span>
           </Link>
@@ -102,8 +102,8 @@ export default function SerialDetailContent({
             href={`/about/${nextPost.id}`}
             className="group flex-1 text-right"
           >
-            <span className="text-xs text-black/30 mb-1 block">다음글</span>
-            <span className="text-sm text-black/70 group-hover:text-black transition-colors">
+            <span className="text-xs text-black mb-1 block">다음글</span>
+            <span className="text-sm text-black group-hover:text-[#b5737a] transition-colors">
               {nextPost.title}
             </span>
           </Link>

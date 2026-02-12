@@ -104,17 +104,17 @@ export default function SerialListContent({ posts }: { posts: SerialPost[] }) {
             {/* Info */}
             <div className="flex flex-col justify-center min-w-0">
               {post.series_name && (
-                <span className="text-xs text-[#b5737a] mb-2">
+                <span className="text-xs text-black mb-2 group-hover:text-[#b5737a] transition-colors duration-300">
                   {post.series_name}
                 </span>
               )}
               <h2 className="text-lg md:text-xl font-light text-black mb-2 group-hover:text-[#b5737a] transition-colors duration-300">
                 {post.title}
               </h2>
-              <p className="text-sm text-black/50 line-clamp-2 mb-3">
+              <p className="text-sm text-black line-clamp-2 mb-3 group-hover:text-[#b5737a] transition-colors duration-300">
                 {post.excerpt}
               </p>
-              <div className="flex items-center gap-3 text-xs text-black/40">
+              <div className="flex items-center gap-3 text-xs text-black group-hover:text-[#b5737a] transition-colors duration-300">
                 <span>{post.author}</span>
                 <span>·</span>
                 <span>{formatDate(post.published_at)}</span>

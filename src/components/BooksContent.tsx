@@ -50,7 +50,7 @@ export default function BooksContent({ books }: { books: Book[] }) {
               className={`px-5 py-2 text-sm tracking-wider rounded-full transition-all duration-300 ${
                 activeCategory === cat.slug
                   ? "bg-black text-white"
-                  : "bg-[#e8c4b8]/30 text-[#5d6a7a] hover:bg-[#e8c4b8]/50"
+                  : "bg-[#e8c4b8]/30 text-[#5d6a7a] hover:bg-[#b5737a] hover:text-white"
               }`}
             >
               {cat.name}
