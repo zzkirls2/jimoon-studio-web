@@ -307,7 +307,7 @@ export default function PlaylistPage() {
           {/* ─── Right: Player + Playlist ─── */}
           <div className="lg:w-[420px] flex-shrink-0 order-1 lg:order-2">
             {/* Player */}
-            <div className="sticky top-20">
+            <div className="lg:sticky lg:top-20">
               <div className="aspect-video bg-neutral-900 rounded-xl overflow-hidden mb-4 relative">
                 <div
                   ref={playerContainerRef}
