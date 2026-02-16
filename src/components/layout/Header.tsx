@@ -21,7 +21,10 @@ const navItems: NavItem[] = [
   { label: "연재", href: "/serial" },
   {
     label: "실험실",
-    children: [{ label: "test01", href: "/lab/library" }],
+    children: [
+      { label: "Library", href: "/lab/library" },
+      { label: "Fingerprint Game", href: "/lab/fingerprint-game" },
+    ],
   },
 ];
 
@@ -95,24 +98,41 @@ export default function Header() {
                   onMouseEnter={() => setOpenDropdown(item.label)}
                   onMouseLeave={() => setOpenDropdown(null)}
                 >
-                  <button className="text-base tracking-wider text-neutral-900 hover:text-[#b5737a] transition-colors duration-300">
+                  <button className="flex items-center gap-1 text-base tracking-wider text-neutral-900 hover:text-[#b5737a] transition-colors duration-300">
                     {item.label}
+                    <svg
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                        openDropdown === item.label ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
                   </button>
-                  {openDropdown === item.label && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2">
-                      <div className="bg-[#fef9f3] border border-neutral-200 rounded-md py-2 min-w-[120px] shadow-sm">
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.href}
-                            href={child.href}
-                            className="block px-4 py-2 text-sm tracking-wider text-neutral-900 hover:text-[#b5737a] transition-colors duration-300"
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
+                  <div
+                    className={`absolute top-full left-1/2 -translate-x-1/2 pt-3 transition-all duration-200 ${
+                      openDropdown === item.label
+                        ? "opacity-100 translate-y-0 pointer-events-auto"
+                        : "opacity-0 -translate-y-1 pointer-events-none"
+                    }`}
+                  >
+                    <div className="bg-white/90 backdrop-blur-md border border-neutral-100 rounded-xl py-1.5 min-w-[180px] shadow-lg shadow-black/[0.06]">
+                      {item.children.map((child, idx) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className={`block px-4 py-2.5 text-[13px] tracking-wide text-neutral-600 hover:text-[#b5737a] hover:bg-[#b5737a]/[0.04] transition-all duration-200 ${
+                            idx !== item.children.length - 1 ? "border-b border-neutral-100/60" : ""
+                          }`}
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
                     </div>
-                  )}
+                  </div>
                 </div>
               ) : (
                 <Link

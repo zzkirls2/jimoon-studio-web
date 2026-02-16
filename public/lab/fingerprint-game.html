@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fingerprint Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #fef9f3;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .game-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: center;
+            padding: 2rem 0;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .arch-frame {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 420px;
+            height: 520px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .canvas-wrapper {
+            background-color: transparent;
+            display: inline-block;
+        }
+
+        canvas {
+            display: block;
+            cursor: pointer;
+            background-color: transparent;
+            transition: filter 0.3s ease;
+        }
+
+        canvas.disabled {
+            cursor: not-allowed;
+        }
+
+        .hearts {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .heart {
+            font-size: 1.5rem;
+            color: #ccc;
+            transition: color 0.3s ease;
+        }
+
+        .heart.active {
+            color: #b5737a;
+        }
+
+        .status {
+            margin-top: 0.3rem;
+            font-size: 0.9rem;
+            color: #5A5A5A;
+            min-height: 1rem;
+        }
+
+        .status.success {
+            color: #4CAF50;
+            font-weight: 500;
+        }
+
+        .status.fail {
+            color: #e57373;
+        }
+
+        .game-btn {
+            margin-top: 0.3rem;
+            padding: 10px 28px;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            background-color: #b5737a;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .game-btn:hover {
+            background-color: #a0616a;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .game-page {
+                padding: 1rem 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-page {
+                padding: 0.5rem 0;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+    </style>
+</head>
+<body>
+    <section class="game-page">
+        <div class="game-container">
+            <svg class="arch-frame" viewBox="0 -30 420 550" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 200 Q20 -20 210 -20 Q400 -20 400 200 L400 520" fill="none" stroke="#FFE4D6" stroke-width="3"/>
+                <path d="M20 200 L20 520" fill="none" stroke="#FFE4D6" stroke-width="3"/>
+            </svg>
+
+            <div class="canvas-wrapper">
+                <canvas id="gameCanvas"></canvas>
+            </div>
+
+            <div class="hearts" id="hearts">
+                <span class="heart active">&#9829;</span>
+                <span class="heart active">&#9829;</span>
+                <span class="heart active">&#9829;</span>
+            </div>
+
+            <p class="status" id="status"></p>
+            <button class="game-btn" onclick="resetGame()">RESTART</button>
+        </div>
+    </section>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const GRID_SIZE = 40;
+        const CELL_SIZE = 9;
+        const DOT_RADIUS = 1.5;
+        const PADDING = 12;
+
+        const ELLIPSE_CENTER_X = GRID_SIZE / 2 - 0.5;
+        const ELLIPSE_CENTER_Y = GRID_SIZE / 2 - 0.5;
+        const ELLIPSE_RADIUS_X = 17;
+        const ELLIPSE_RADIUS_Y = 19;
+
+        canvas.width = GRID_SIZE * CELL_SIZE + PADDING * 2;
+        canvas.height = GRID_SIZE * CELL_SIZE + PADDING * 2;
+
+        function isInEllipse(x, y) {
+            const dx = (x - ELLIPSE_CENTER_X) / ELLIPSE_RADIUS_X;
+            const dy = (y - ELLIPSE_CENTER_Y) / ELLIPSE_RADIUS_Y;
+            return (dx * dx + dy * dy) <= 1;
+        }
+
+        const DIRS = [
+            { dx: 1, dy: 0 },
+            { dx: -1, dy: 0 },
+            { dx: 0, dy: 1 },
+            { dx: 0, dy: -1 }
+        ];
+
+        let arrows = [];
+        let lives = 3;
+        let gameOver = false;
+        let hoveredArrow = null;
+        let animatingArrow = null;
+        let animationTime = 0;
+
+        function generateColors(count) {
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                const hue = (i * 137.508) % 360;
+                colors.push(`hsl(${hue}, 65%, 55%)`);
+            }
+            return colors;
+        }
+
+        function generateLevel() {
+            const grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(-1));
+            const colors = generateColors(100);
+            let shapeId = 0;
+
+            function isValid(x, y) {
+                return x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE && isInEllipse(x, y);
+            }
+
+            function isFree(x, y) {
+                return isValid(x, y) && grid[y][x] === -1;
+            }
+
+            function getNeighbors(x, y) {
+                return DIRS.map(d => ({ x: x + d.dx, y: y + d.dy, dir: d }))
+                          .filter(n => isFree(n.x, n.y));
+            }
+
+            function countFreeNeighbors(x, y) {
+                return DIRS.filter(d => isFree(x + d.dx, y + d.dy)).length;
+            }
+
+            function distFromCenter(x, y) {
+                const dx = x - ELLIPSE_CENTER_X;
+                const dy = y - ELLIPSE_CENTER_Y;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            function getSpiralDirection(x, y) {
+                const dx = x - ELLIPSE_CENTER_X;
+                const dy = y - ELLIPSE_CENTER_Y;
+                const angle = Math.atan2(dy, dx);
+                const outwardBias = 0.08;
+                const tangentAngle = angle + Math.PI / 2;
+                const tx = Math.cos(tangentAngle) + Math.cos(angle) * outwardBias;
+                const ty = Math.sin(tangentAngle) + Math.sin(angle) * outwardBias;
+                const len = Math.sqrt(tx * tx + ty * ty);
+                return { tx: tx / len, ty: ty / len };
+            }
+
+            function getSpiralScore(x, y, dirX, dirY) {
+                const spiral = getSpiralDirection(x, y);
+                return spiral.tx * dirX + spiral.ty * dirY;
+            }
+
+            const ellipsePoints = [];
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    if (isInEllipse(x, y)) {
+                        ellipsePoints.push({ x, y, dist: distFromCenter(x, y) });
+                    }
+                }
+            }
+            ellipsePoints.sort((a, b) => a.dist - b.dist);
+
+            const shapes = [];
+            for (const startPt of ellipsePoints) {
+                const startX = startPt.x;
+                const startY = startPt.y;
+                if (grid[startY][startX] !== -1) continue;
+
+                const points = [[startX, startY]];
+                grid[startY][startX] = shapeId;
+                const targetLen = Math.floor(Math.random() * 15) + 20;
+
+                while (points.length < targetLen) {
+                    const [cx, cy] = points[points.length - 1];
+                    let neighbors = getNeighbors(cx, cy);
+                    if (neighbors.length === 0) break;
+
+                    neighbors.forEach(n => {
+                        const spiralScore = getSpiralScore(cx, cy, n.dir.dx, n.dir.dy) * 2.0;
+                        const freeScore = countFreeNeighbors(n.x, n.y) * 0.05;
+                        n.score = spiralScore + freeScore;
+                    });
+                    neighbors.sort((a, b) => b.score - a.score);
+
+                    const pickIndex = (neighbors.length > 1 && Math.random() < 0.08) ? 1 : 0;
+                    const next = neighbors[pickIndex];
+                    points.push([next.x, next.y]);
+                    grid[next.y][next.x] = shapeId;
+                }
+
+                if (points.length >= 2) {
+                    shapes.push({ points, id: shapeId, color: colors[shapeId % colors.length] });
+                    shapeId++;
+                } else {
+                    grid[startY][startX] = -1;
+                }
+            }
+
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    if (!isInEllipse(x, y) || grid[y][x] !== -1) continue;
+                    for (const d of DIRS) {
+                        const nx = x + d.dx, ny = y + d.dy;
+                        if (!isValid(nx, ny) || grid[ny][nx] === -1) continue;
+                        const shape = shapes.find(s => s.id === grid[ny][nx]);
+                        if (!shape) continue;
+                        const first = shape.points[0], last = shape.points[shape.points.length - 1];
+                        if (first[0] === nx && first[1] === ny) {
+                            shape.points.unshift([x, y]);
+                            grid[y][x] = shape.id;
+                            break;
+                        }
+                        if (last[0] === nx && last[1] === ny) {
+                            shape.points.push([x, y]);
+                            grid[y][x] = shape.id;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            const remainingPoints = [];
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    if (isInEllipse(x, y) && grid[y][x] === -1) {
+                        remainingPoints.push([x, y]);
+                    }
+                }
+            }
+            remainingPoints.sort(() => Math.random() - 0.5);
+            const fillCount = Math.floor(remainingPoints.length * 0.7);
+
+            for (let i = 0; i < fillCount; i++) {
+                const [x, y] = remainingPoints[i];
+                if (grid[y][x] !== -1) continue;
+                for (const d of DIRS) {
+                    const nx = x + d.dx, ny = y + d.dy;
+                    if (isValid(nx, ny) && grid[ny][nx] === -1) {
+                        grid[y][x] = shapeId;
+                        grid[ny][nx] = shapeId;
+                        shapes.push({ points: [[x, y], [nx, ny]], id: shapeId, color: colors[shapeId % colors.length] });
+                        shapeId++;
+                        break;
+                    }
+                }
+            }
+
+            function wouldSelfBlock(pts) {
+                const last = pts[pts.length - 1];
+                const prev = pts[pts.length - 2];
+                const dx = Math.sign(last[0] - prev[0]);
+                const dy = Math.sign(last[1] - prev[1]);
+                const bodySet = new Set();
+                for (let i = 0; i < pts.length - 1; i++) {
+                    bodySet.add(`${pts[i][0]},${pts[i][1]}`);
+                }
+                let x = last[0] + dx, y = last[1] + dy;
+                while (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
+                    if (bodySet.has(`${x},${y}`)) return true;
+                    x += dx; y += dy;
+                }
+                return false;
+            }
+
+            const result = [];
+            for (const shape of shapes) {
+                const pts = shape.points;
+                const first = pts[0];
+                const last = pts[pts.length - 1];
+                const distFirst = distFromCenter(first[0], first[1]);
+                const distLast = distFromCenter(last[0], last[1]);
+
+                let finalPts;
+                if (distLast >= distFirst) {
+                    finalPts = [...pts];
+                } else {
+                    finalPts = [...pts].reverse();
+                }
+
+                if (wouldSelfBlock(finalPts)) {
+                    const reversed = [...finalPts].reverse();
+                    if (!wouldSelfBlock(reversed)) {
+                        finalPts = reversed;
+                    }
+                }
+
+                result.push({ points: finalPts, id: shape.id, color: shape.color });
+            }
+            return result;
+        }
+
+        function getArrowHead(arrow) {
+            const points = arrow.points;
+            const lastPt = points[points.length - 1];
+            const prevPt = points[points.length - 2];
+            return {
+                x: lastPt[0], y: lastPt[1],
+                dx: Math.sign(lastPt[0] - prevPt[0]),
+                dy: Math.sign(lastPt[1] - prevPt[1])
+            };
+        }
+
+        function isSelfBlocking(arrow) {
+            const head = getArrowHead(arrow);
+            const bodyPoints = new Set();
+            for (let i = 0; i < arrow.points.length - 1; i++) {
+                bodyPoints.add(`${arrow.points[i][0]},${arrow.points[i][1]}`);
+            }
+            let x = head.x + head.dx, y = head.y + head.dy;
+            while (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
+                if (bodyPoints.has(`${x},${y}`)) return true;
+                x += head.dx; y += head.dy;
+            }
+            return false;
+        }
+
+        function hasDeadlock(arrowsList) {
+            for (const arrow of arrowsList) {
+                if (isSelfBlocking(arrow)) return true;
+            }
+            const pointMap = new Map();
+            for (const arrow of arrowsList) {
+                for (const pt of arrow.points) {
+                    pointMap.set(`${pt[0]},${pt[1]}`, arrow.id);
+                }
+            }
+            const inDegree = new Map();
+            const graph = new Map();
+            for (const arrow of arrowsList) {
+                graph.set(arrow.id, []);
+                inDegree.set(arrow.id, 0);
+            }
+            for (const arrow of arrowsList) {
+                const head = getArrowHead(arrow);
+                let x = head.x + head.dx, y = head.y + head.dy;
+                while (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
+                    const key = `${x},${y}`;
+                    if (pointMap.has(key) && pointMap.get(key) !== arrow.id) {
+                        const blockerId = pointMap.get(key);
+                        graph.get(blockerId).push(arrow.id);
+                        inDegree.set(arrow.id, inDegree.get(arrow.id) + 1);
+                        break;
+                    }
+                    x += head.dx; y += head.dy;
+                }
+            }
+            const queue = [];
+            for (const [id, deg] of inDegree) {
+                if (deg === 0) queue.push(id);
+            }
+            let processed = 0;
+            while (queue.length > 0) {
+                const id = queue.shift();
+                processed++;
+                for (const blocked of graph.get(id)) {
+                    const newDeg = inDegree.get(blocked) - 1;
+                    inDegree.set(blocked, newDeg);
+                    if (newDeg === 0) queue.push(blocked);
+                }
+            }
+            return processed < arrowsList.length;
+        }
+
+        function gridToCanvas(x, y) {
+            return { x: PADDING + x * CELL_SIZE, y: PADDING + y * CELL_SIZE };
+        }
+
+        function initGame() {
+            let attempts = 0;
+            while (attempts < 100) {
+                arrows = generateLevel();
+                attempts++;
+                if (arrows && arrows.length > 0 && !hasDeadlock(arrows)) break;
+            }
+            if (!arrows || arrows.length === 0) { arrows = []; }
+            arrows.forEach(arrow => {
+                arrow.originalPoints = JSON.parse(JSON.stringify(arrow.points));
+                arrow.currentPoints = JSON.parse(JSON.stringify(arrow.points));
+                arrow.offset = { x: 0, y: 0 };
+                arrow.alpha = 1;
+            });
+            lives = 3;
+            gameOver = false;
+            hoveredArrow = null;
+            animatingArrow = null;
+            updateUI();
+            render();
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#E0E0E0';
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    if (!isInEllipse(x, y)) continue;
+                    const pos = gridToCanvas(x, y);
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, DOT_RADIUS, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            arrows.forEach(arrow => {
+                if (arrow !== animatingArrow) drawArrow(arrow, arrow === hoveredArrow);
+            });
+            if (animatingArrow) drawArrow(animatingArrow, false);
+        }
+
+        function drawArrow(arrow, highlighted) {
+            const points = arrow.currentPoints || arrow.points;
+            if (points.length < 2) return;
+            const lineWidth = highlighted ? 4 : 3;
+            const headSize = highlighted ? 8 : 6;
+            let vibX = 0, vibY = 0;
+            if (!gameOver) {
+                const vibrationAmount = highlighted ? 1.2 : 0.5;
+                const phase = arrow.id * 2.1;
+                vibX = (Math.sin(animationTime * 0.015 + phase) + Math.sin(animationTime * 0.023 + phase * 1.3) * 0.5) * vibrationAmount;
+                vibY = (Math.cos(animationTime * 0.018 + phase * 0.8) + Math.cos(animationTime * 0.027 + phase) * 0.5) * vibrationAmount;
+            }
+            ctx.save();
+            ctx.globalAlpha = arrow.alpha || 1;
+            ctx.translate((arrow.offset?.x || 0) + vibX, (arrow.offset?.y || 0) + vibY);
+            const arrowColor = (gameOver && lives <= 0) ? '#AAAAAA' : arrow.color;
+            ctx.strokeStyle = arrowColor;
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            const start = gridToCanvas(points[0][0], points[0][1]);
+            ctx.moveTo(start.x, start.y);
+            for (let i = 1; i < points.length; i++) {
+                const pt = gridToCanvas(points[i][0], points[i][1]);
+                ctx.lineTo(pt.x, pt.y);
+            }
+            ctx.stroke();
+            const lastPt = points[points.length - 1];
+            const prevPt = points[points.length - 2];
+            const headPos = gridToCanvas(lastPt[0], lastPt[1]);
+            const dx = lastPt[0] - prevPt[0];
+            const dy = lastPt[1] - prevPt[1];
+            const angle = Math.atan2(dy, dx);
+            ctx.fillStyle = arrowColor;
+            ctx.beginPath();
+            ctx.moveTo(headPos.x + Math.cos(angle) * headSize, headPos.y + Math.sin(angle) * headSize);
+            ctx.lineTo(headPos.x + Math.cos(angle + Math.PI * 0.8) * headSize * 0.7, headPos.y + Math.sin(angle + Math.PI * 0.8) * headSize * 0.7);
+            ctx.lineTo(headPos.x + Math.cos(angle - Math.PI * 0.8) * headSize * 0.7, headPos.y + Math.sin(angle - Math.PI * 0.8) * headSize * 0.7);
+            ctx.closePath();
+            ctx.fill();
+            if (highlighted) {
+                ctx.shadowColor = arrowColor;
+                ctx.shadowBlur = 10;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+            ctx.restore();
+        }
+
+        function getArrowAtPoint(cx, cy) {
+            const threshold = 12;
+            for (const arrow of arrows) {
+                if (arrow === animatingArrow) continue;
+                const points = arrow.currentPoints || arrow.points;
+                for (let i = 0; i < points.length - 1; i++) {
+                    const p1 = gridToCanvas(points[i][0], points[i][1]);
+                    const p2 = gridToCanvas(points[i + 1][0], points[i + 1][1]);
+                    const dist = pointToSegmentDistance(cx, cy, p1.x, p1.y, p2.x, p2.y);
+                    if (dist < threshold) return arrow;
+                }
+            }
+            return null;
+        }
+
+        function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
+            const dx = x2 - x1, dy = y2 - y1;
+            const lengthSq = dx * dx + dy * dy;
+            if (lengthSq === 0) return Math.sqrt((px - x1) ** 2 + (py - y1) ** 2);
+            let t = ((px - x1) * dx + (py - y1) * dy) / lengthSq;
+            t = Math.max(0, Math.min(1, t));
+            const nearX = x1 + t * dx, nearY = y1 + t * dy;
+            return Math.sqrt((px - nearX) ** 2 + (py - nearY) ** 2);
+        }
+
+        function canEscape(arrow) {
+            const head = getArrowHead(arrow);
+            const occupiedPoints = new Set();
+            arrows.forEach(a => {
+                if (a.id !== arrow.id) {
+                    const pts = a.originalPoints || a.points;
+                    pts.forEach(pt => occupiedPoints.add(`${pt[0]},${pt[1]}`));
+                }
+            });
+            let x = head.x + head.dx, y = head.y + head.dy;
+            while (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
+                if (occupiedPoints.has(`${x},${y}`)) return false;
+                x += head.dx; y += head.dy;
+            }
+            return true;
+        }
+
+        function removeArrow(arrow) {
+            const head = getArrowHead(arrow);
+            const points = arrow.originalPoints;
+            const numPoints = points.length;
+            const headPt = points[numPoints - 1];
+            animatingArrow = arrow;
+            let frame = 0;
+            const straightenFrames = 12;
+            const exitFrames = 10;
+            const totalFrames = straightenFrames + exitFrames;
+
+            function animate() {
+                frame++;
+                if (frame <= straightenFrames) {
+                    const progress = easeInOutCubic(frame / straightenFrames);
+                    const newPoints = [];
+                    for (let i = 0; i < numPoints; i++) {
+                        const origPt = points[i];
+                        const targetX = headPt[0] - head.dx * (numPoints - 1 - i);
+                        const targetY = headPt[1] - head.dy * (numPoints - 1 - i);
+                        newPoints.push([origPt[0] + (targetX - origPt[0]) * progress, origPt[1] + (targetY - origPt[1]) * progress]);
+                    }
+                    arrow.currentPoints = newPoints;
+                } else {
+                    const exitProgress = (frame - straightenFrames) / exitFrames;
+                    arrow.offset = { x: head.dx * exitProgress * CELL_SIZE * 3, y: head.dy * exitProgress * CELL_SIZE * 3 };
+                    arrow.alpha = 1 - easeInQuad(exitProgress);
+                }
+                render();
+                if (frame < totalFrames) {
+                    requestAnimationFrame(animate);
+                } else {
+                    arrows = arrows.filter(a => a.id !== arrow.id);
+                    animatingArrow = null;
+                    updateUI();
+                    render();
+                    if (arrows.length === 0) {
+                        gameOver = true;
+                        setStatus('Clear! Well done!', 'success');
+                        celebrateWin();
+                    }
+                }
+            }
+            animate();
+        }
+
+        function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+        function easeInQuad(t) { return t * t; }
+
+        function clickArrow(arrow) {
+            if (gameOver || animatingArrow) return;
+            if (canEscape(arrow)) {
+                setStatus('');
+                removeArrow(arrow);
+            } else {
+                lives--;
+                updateUI();
+                setStatus('Blocked! Path not clear.', 'fail');
+                canvas.style.animation = 'none';
+                canvas.offsetHeight;
+                canvas.style.animation = 'shake 0.2s ease';
+                if (lives <= 0) {
+                    gameOver = true;
+                    canvas.classList.add('disabled');
+                    render();
+                }
+            }
+        }
+
+        function celebrateWin() {
+            const confetti = [];
+            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#1dd1a1'];
+            for (let i = 0; i < 150; i++) {
+                confetti.push({
+                    x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 8 + 4, color: colors[Math.floor(Math.random() * colors.length)],
+                    speedY: Math.random() * 3 + 2, speedX: Math.random() * 2 - 1,
+                    rotation: Math.random() * 360, rotationSpeed: Math.random() * 10 - 5
+                });
+            }
+            let frame = 0;
+            function animateConfetti() {
+                frame++;
+                ctx.save();
+                confetti.forEach(c => {
+                    c.y += c.speedY; c.x += c.speedX; c.rotation += c.rotationSpeed;
+                    ctx.save();
+                    ctx.translate(c.x, c.y);
+                    ctx.rotate(c.rotation * Math.PI / 180);
+                    ctx.fillStyle = c.color;
+                    ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size * 0.6);
+                    ctx.restore();
+                });
+                ctx.restore();
+                if (frame < 180) requestAnimationFrame(animateConfetti);
+            }
+            animateConfetti();
+        }
+
+        function setStatus(msg, type = '') {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = msg;
+            statusEl.className = 'status';
+            if (type) statusEl.classList.add(type);
+        }
+
+        function updateUI() {
+            const hearts = document.querySelectorAll('.heart');
+            hearts.forEach((heart, index) => {
+                if (index < lives) { heart.classList.add('active'); }
+                else { heart.classList.remove('active'); }
+            });
+        }
+
+        function resetGame() {
+            canvas.classList.remove('disabled');
+            initGame();
+            setStatus('');
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (gameOver || animatingArrow) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+            const arrow = getArrowAtPoint(x, y);
+            if (arrow !== hoveredArrow) { hoveredArrow = arrow; render(); }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            if (hoveredArrow) { hoveredArrow = null; render(); }
+        });
+
+        canvas.addEventListener('click', (e) => {
+            if (gameOver || animatingArrow) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+            const arrow = getArrowAtPoint(x, y);
+            if (arrow) clickArrow(arrow);
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (gameOver || animatingArrow) return;
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
+            const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
+            const arrow = getArrowAtPoint(x, y);
+            if (arrow) clickArrow(arrow);
+        }, { passive: false });
+
+        setStatus('Loading puzzle...', '');
+        setTimeout(() => { initGame(); }, 50);
+
+        function animate(timestamp) {
+            animationTime = timestamp;
+            if (!animatingArrow) render();
+            requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
