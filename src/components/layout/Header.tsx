@@ -24,6 +24,7 @@ const navItems: NavItem[] = [
     children: [
       { label: "Library", href: "/lab/library" },
       { label: "Fingerprint Game", href: "/lab/fingerprint-game" },
+      { label: "Playlist", href: "/lab/playlist" },
     ],
   },
 ];
