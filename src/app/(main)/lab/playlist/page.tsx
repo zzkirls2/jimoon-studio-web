@@ -66,6 +66,7 @@ export default function PlaylistPage() {
   const [results, setResults] = useState<Track[]>([]);
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   /* playlist state */
   const [playlist, setPlaylist] = useState<Track[]>([]);
@@ -145,6 +146,7 @@ export default function PlaylistPage() {
     const q = query.trim();
     if (!q) return;
     setSearching(true);
+    setSearchError(null);
 
     try {
       const params = new URLSearchParams({ q });
@@ -152,6 +154,11 @@ export default function PlaylistPage() {
 
       const res = await fetch(`/api/youtube/search?${params}`);
       const data = await res.json();
+
+      if (!res.ok) {
+        setSearchError(data.error || `Error ${res.status}`);
+        return;
+      }
 
       if (pageToken) {
         setResults((prev) => {
@@ -163,6 +170,8 @@ export default function PlaylistPage() {
         setResults(data.items ?? []);
       }
       setNextPageToken(data.nextPageToken ?? null);
+    } catch (e) {
+      setSearchError(e instanceof Error ? e.message : "Network error");
     } finally {
       setSearching(false);
     }
@@ -244,6 +253,12 @@ export default function PlaylistPage() {
                 {searching ? "..." : "Search"}
               </button>
             </form>
+
+            {searchError && (
+              <div className="mb-4 px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600">
+                {searchError}
+              </div>
+            )}
 
             {/* Results */}
             <div className="space-y-2">
