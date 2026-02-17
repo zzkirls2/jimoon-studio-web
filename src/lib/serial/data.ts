@@ -32,23 +32,6 @@ export async function getSerialPostById(
   return data ?? undefined;
 }
 
-export async function getSeriesPosts(
-  seriesName: string
-): Promise<SerialPost[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("serial_posts")
-    .select("*")
-    .eq("series_name", seriesName)
-    .order("series_order", { ascending: true });
-
-  if (error) {
-    console.error("Failed to fetch series posts:", error);
-    return [];
-  }
-  return data ?? [];
-}
-
 export async function getAdjacentPosts(publishedAt: string) {
   const supabase = await createClient();
 

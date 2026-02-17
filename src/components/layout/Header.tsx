@@ -22,9 +22,8 @@ const navItems: NavItem[] = [
   {
     label: "실험실",
     children: [
-      { label: "Library", href: "/lab/library" },
-      { label: "Fingerprint Game", href: "/lab/fingerprint-game" },
-      { label: "Playlist", href: "/lab/playlist" },
+{ label: "Fingerprint Escape", href: "/lab/fingerprint-escape" },
+      { label: "Ply Tails", href: "/lab/playlist" },
     ],
   },
 ];

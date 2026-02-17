@@ -31,7 +31,7 @@ export default function SerialDetailContent({
   nextPost: { id: string; title: string } | null;
 }) {
   return (
-    <div className="min-h-screen pt-32 pb-24 max-w-3xl mx-auto px-6 md:px-12">
+    <div className="min-h-screen pt-32 pb-24 max-w-3xl mx-auto px-6 md:px-12 font-[family-name:var(--font-gamja-flower)]">
       {/* Header */}
       <FadeIn>
         <Link

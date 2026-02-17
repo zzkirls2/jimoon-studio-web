@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   getSerialPostById,
-  getSeriesPosts,
   getAdjacentPosts,
 } from "@/lib/serial/data";
 import SerialDetailContent from "@/components/SerialDetailContent";
@@ -28,15 +27,11 @@ export default async function SerialDetailPage({
     );
   }
 
-  const [seriesPosts, adjacent] = await Promise.all([
-    post.series_name ? getSeriesPosts(post.series_name) : Promise.resolve([]),
-    getAdjacentPosts(post.published_at),
-  ]);
+  const adjacent = await getAdjacentPosts(post.published_at);
 
   return (
     <SerialDetailContent
       post={post}
-      seriesPosts={seriesPosts}
       prevPost={adjacent.prev}
       nextPost={adjacent.next}
     />
