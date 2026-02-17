@@ -233,11 +233,11 @@ export default function FloatingWords({ lyricsData, loading }: FloatingWordsProp
   }
 
   return (
-    <div className="flex flex-col h-full gap-3 overflow-y-auto">
+    <div className="flex flex-col gap-3">
       {/* ── Floating area ── */}
       <div
         ref={containerRef}
-        className="relative min-h-[300px] lg:min-h-[400px] rounded-xl bg-gradient-to-b from-white/30 to-white/10 border border-neutral-200/40 overflow-hidden flex-shrink-0"
+        className="relative h-[75vh] lg:h-[calc(100vh-10rem)] rounded-xl bg-gradient-to-b from-white/30 to-white/10 border border-neutral-200/40 overflow-hidden"
       >
         <style jsx>{`
           @keyframes floatWord {

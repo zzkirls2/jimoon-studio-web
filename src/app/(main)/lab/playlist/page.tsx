@@ -458,7 +458,7 @@ export default function PlaylistPage() {
 
         {/* Ply Tails tab */}
         <div className={pageTab === "plyTails" ? "" : "hidden"}>
-          <div className="h-[calc(100vh-12rem)]">
+          <div>
             <FloatingWords
               key={`tab-${currentTrack?.videoId ?? "empty"}`}
               lyricsData={lyricsData}
