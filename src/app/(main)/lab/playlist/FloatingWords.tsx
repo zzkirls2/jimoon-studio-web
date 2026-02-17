@@ -149,7 +149,7 @@ export default function FloatingWords({ lyricsData, loading }: FloatingWordsProp
 
   if (!lyricsData && !loading) {
     return (
-      <div className="relative h-full rounded-xl bg-gradient-to-b from-white/30 to-white/10 border border-neutral-200/40 overflow-hidden">
+      <div className="relative h-[75vh] lg:h-[calc(100vh-10rem)] rounded-xl bg-gradient-to-b from-white/30 to-white/10 border border-neutral-200/40 overflow-hidden">
         <style dangerouslySetInnerHTML={{ __html: `
           @keyframes floatWord {
             0%, 100% { transform: translate(0, 0) rotate(0deg); }
