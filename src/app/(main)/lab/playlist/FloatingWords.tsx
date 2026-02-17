@@ -303,10 +303,7 @@ export default function FloatingWords({ lyricsData, loading }: FloatingWordsProp
         {/* Hint */}
         {composed.length === 0 && (
           <div className="absolute inset-0 flex flex-col items-center justify-end pb-4 pointer-events-none">
-            <span className="text-[13px] italic" style={{ color: "#2ff40a" }}>
-              Playlist is an anagram of Ply Tails
-            </span>
-            <span className="text-[11px] text-neutral-300 mt-1">
+            <span className="text-[11px] text-neutral-300">
               Click words to compose
             </span>
           </div>

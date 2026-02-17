@@ -42,7 +42,7 @@ async function lrcLib(params: Record<string, string>): Promise<LyricsResult | nu
   try {
     const res = await fetchWithTimeout(
       `https://lrclib.net/api/search?${new URLSearchParams(params)}`,
-      4000,
+      6000,
       { headers: UA },
     );
     if (!res || !res.ok) return null;
@@ -172,70 +172,37 @@ export async function GET(req: NextRequest) {
 
   const headers = { "Cache-Control": "no-store" };
 
-  // Build multiple search strategies and race them ALL (including lyrics.ovh)
-  const searches: Promise<LyricsResult | null>[] = [
-    // Strategy 1: generic query search
-    lrcLib({ q }),
-    // Strategy 2: just cleaned title (most reliable for lrclib)
+  // Step 1: Try the best 3 searches in parallel (avoid rate limiting)
+  const primary: Promise<LyricsResult | null>[] = [
+    lrcLib({ q: `${artist} ${title}` }),
+  ];
+  if (artist && title) {
+    primary.push(lrcLib({ artist_name: artist, track_name: title }));
+  }
+  primary.push(lrcLib({ q }));
+
+  const result1 = await raceForResult(primary);
+  if (result1) {
+    return NextResponse.json({ source: result1.synced ? "lrclib" : "lrclib", ...result1 }, { headers });
+  }
+
+  // Step 2: Fallback — try cleaned title only + lyrics.ovh
+  const fallback: Promise<LyricsResult | null>[] = [
     lrcLib({ q: title }),
   ];
-
   if (artist && title) {
-    // Strategy 3: structured artist + track search
-    searches.push(lrcLib({ artist_name: artist, track_name: title }));
-    // Strategy 4: artist + title as combined query
-    searches.push(lrcLib({ q: `${artist} ${title}` }));
-    // Strategy 5: lyrics.ovh in parallel (not sequential fallback)
-    searches.push(lyricsOvh(artist, title));
+    fallback.push(lyricsOvh(artist, title));
   }
 
-  // If there's a featured artist, try with main + featured
-  if (featured && title) {
-    searches.push(lrcLib({ q: `${artist} ${featured} ${title}` }));
-  }
-
-  // If K-pop artist was extracted, also try with original channel name
-  if (kpopArtist && rawArtist && title) {
-    searches.push(lrcLib({ q: `${rawArtist} ${title}` }));
-  }
-
-  // If artist contains mixed Korean/English, try with just the English part
-  // e.g., "이지금 IU" → try "IU", "혁오 hyukoh" → try "hyukoh"
+  // K-pop: try with extracted English artist
   const englishArtist = artist.replace(/[^\x00-\x7F]+/g, "").trim();
   if (englishArtist && englishArtist !== artist && title) {
-    searches.push(lrcLib({ artist_name: englishArtist, track_name: title }));
-    searches.push(lrcLib({ q: `${englishArtist} ${title}` }));
+    fallback.push(lrcLib({ artist_name: englishArtist, track_name: title }));
   }
 
-  // If title contains "Artist - Song" pattern, try splitting and searching with extracted parts
-  // e.g., "JISOO - 'FLOWER'" → try artist "JISOO", track "FLOWER"
-  // e.g., "LUCY - 개화" → try artist "LUCY", track "개화"
-  const dashSplit = title.match(/^(.+?)\s*[-–—]\s+(.+)$/);
-  if (dashSplit) {
-    const splitArtist = dashSplit[1].replace(/[''\u2018\u2019]/g, "").trim();
-    const splitTrack = dashSplit[2].replace(/[''\u2018\u2019]/g, "").trim();
-    if (splitArtist && splitTrack) {
-      searches.push(lrcLib({ artist_name: splitArtist, track_name: splitTrack }));
-      searches.push(lrcLib({ q: `${splitArtist} ${splitTrack}` }));
-    }
-  }
-
-  // If title has mixed Korean/English like "사랑을 했다 (LOVE SCENARIO)", also try English part
-  const engTitle = title.match(/\(([A-Za-z][\w\s,.'!?]+)\)/);
-  if (engTitle && artist) {
-    searches.push(lrcLib({ artist_name: artist, track_name: engTitle[1].trim() }));
-  }
-
-  // If K-pop title has "BTS 정국 (Jung Kook)" pattern, extract member name from parentheses
-  const memberMatch = rawTitle.match(/\(([A-Za-z][\w\s]+)\)\s*[''\u2018\u2019]/);
-  if (memberMatch && title) {
-    const member = memberMatch[1].trim();
-    searches.push(lrcLib({ artist_name: member, track_name: title }));
-  }
-
-  const result = await raceForResult(searches);
-  if (result) {
-    return NextResponse.json({ source: result.synced ? "lrclib" : "lyrics.ovh", ...result }, { headers });
+  const result2 = await raceForResult(fallback);
+  if (result2) {
+    return NextResponse.json({ source: result2.synced ? "lrclib" : "lyrics.ovh", ...result2 }, { headers });
   }
 
   return NextResponse.json({ error: "No lyrics found" }, {

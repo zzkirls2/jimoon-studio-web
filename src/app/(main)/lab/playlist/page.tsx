@@ -282,6 +282,7 @@ export default function PlaylistPage() {
   /* ── Shared lyrics state ── */
   const [lyricsData, setLyricsData] = useState<{ synced?: string; plain?: string } | null>(null);
   const [lyricsLoading, setLyricsLoading] = useState(false);
+  const [pageTab, setPageTab] = useState<"playlist" | "plyTails">("playlist");
 
   /* ── Get current playback time ── */
   const getTime = useCallback(
@@ -431,6 +432,43 @@ export default function PlaylistPage() {
   return (
     <div className="pt-14 min-h-screen bg-[#fef9f3]">
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-8">
+        {/* Page tabs */}
+        <div className="flex gap-4 mb-6">
+          <button
+            onClick={() => setPageTab("playlist")}
+            className={`text-sm pb-1 transition-colors ${
+              pageTab === "playlist"
+                ? "text-neutral-800 border-b-2 border-neutral-800 font-medium"
+                : "text-neutral-400"
+            }`}
+          >
+            Playlist
+          </button>
+          <button
+            onClick={() => setPageTab("plyTails")}
+            className={`text-sm pb-1 transition-colors ${
+              pageTab === "plyTails"
+                ? "text-neutral-800 border-b-2 border-neutral-800 font-medium"
+                : "text-neutral-400"
+            }`}
+          >
+            Ply Tails
+          </button>
+        </div>
+
+        {/* Ply Tails tab */}
+        <div className={pageTab === "plyTails" ? "" : "hidden"}>
+          <div className="h-[calc(100vh-12rem)]">
+            <FloatingWords
+              key={`tab-${currentTrack?.videoId ?? "empty"}`}
+              lyricsData={lyricsData}
+              loading={lyricsLoading}
+            />
+          </div>
+        </div>
+
+        {/* Playlist tab */}
+        <div className={pageTab === "playlist" ? "" : "hidden"}>
         <div className="flex flex-col lg:flex-row gap-8">
           {/* ─── Left: Search ─── */}
           <div className="lg:w-[360px] flex-shrink-0 order-2 lg:order-1">
@@ -655,6 +693,7 @@ export default function PlaylistPage() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
