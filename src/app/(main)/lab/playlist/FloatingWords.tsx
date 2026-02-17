@@ -33,6 +33,8 @@ const ANAGRAM_COLORS = [
   "#B5737A", // burgundy — passion, Rose Theatre
   "#6B9B7D", // sage green — "green-eyed monster", forest comedies
   "#5D7A99", // twilight blue — night scenes, melancholy
+  "#C47A5A", // warm copper — stage candlelight
+  "#8B6DAE", // soft violet — theatrical mystery
 ];
 
 export default function FloatingWords({ lyricsData, loading }: FloatingWordsProps) {
@@ -123,23 +125,25 @@ export default function FloatingWords({ lyricsData, loading }: FloatingWordsProp
 
   /* ── Shakespeare anagram phrases for idle state ── */
   const anagramPhrases = useMemo(() => {
-    const phrases = [
-      "William Shakespeare",
-      "We all make his praise",
-      "I am a weakish speller",
-      "I'll make a wise phrase",
-      "He as me, will sparke ai",
+    const items = [
+      { text: "William Shakespeare",       x: 60, y: 25 },
+      { text: "We all make his praise",    x: 38, y: 10 },
+      { text: "I am a weakish speller",    x: 2,  y: 32 },
+      { text: "I'll make a wise phrase",   x: 68, y: 48 },
+      { text: "He as me, will sparke ai",  x: 3,  y: 68 },
+      { text: "He's like a lamp, I swear", x: 35, y: 80 },
+      { text: "Hear me as I will speak",   x: 18, y: 88 },
     ];
     const rand = seededRandom(777);
-    return phrases.map((text, i) => ({
+    return items.map((item, i) => ({
       id: i,
-      text,
+      text: item.text,
       color: ANAGRAM_COLORS[i],
-      x: 5 + rand() * 40,
-      y: 8 + i * 16 + rand() * 6,
-      size: 13 + Math.floor(rand() * 5),
-      duration: 12 + rand() * 10,
-      delay: rand() * -15,
+      x: item.x,
+      y: item.y,
+      size: 13 + Math.floor(rand() * 4),
+      duration: 14 + rand() * 8,
+      delay: rand() * -12,
     }));
   }, []);
 
