@@ -2,19 +2,21 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { gsap } from "@/lib/gsap/register";
 import type { SerialPost } from "@/types/serial";
-import FadeIn from "@/components/animations/FadeIn";
 
 const POSTS_PER_PAGE = 10;
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("ko-KR", {
+  const d = new Date(dateStr);
+  const date = d.toLocaleDateString("ko-KR", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
+  const hour = d.getHours();
+  const minute = String(d.getMinutes()).padStart(2, "0");
+  return `${date} ${hour}시 ${minute}분`;
 }
 
 export default function SerialListContent({ posts }: { posts: SerialPost[] }) {
@@ -26,9 +28,7 @@ export default function SerialListContent({ posts }: { posts: SerialPost[] }) {
     ? posts.filter(
         (p) =>
           p.title.toLowerCase().includes(query.toLowerCase()) ||
-          p.author.toLowerCase().includes(query.toLowerCase()) ||
-          p.excerpt.toLowerCase().includes(query.toLowerCase()) ||
-          p.series_name?.toLowerCase().includes(query.toLowerCase())
+          p.author.toLowerCase().includes(query.toLowerCase())
       )
     : posts;
 
@@ -82,39 +82,22 @@ export default function SerialListContent({ posts }: { posts: SerialPost[] }) {
       )}
 
       <div ref={gridRef} className="flex flex-col gap-12">
-        {paginatedPosts.map((post) => (
+        {paginatedPosts.map((post, index) => (
           <Link
             href={`/serial/${post.id}`}
             key={post.id}
-            className="serial-item group flex gap-6 md:gap-8"
+            className="serial-item group flex items-start gap-6 font-[family-name:var(--font-gamja-flower)]"
           >
-            {/* Thumbnail */}
-            {post.thumbnail && (
-              <div className="flex-shrink-0 w-28 h-28 md:w-40 md:h-40 overflow-hidden bg-neutral-100">
-                <Image
-                  src={post.thumbnail}
-                  alt={post.title}
-                  width={160}
-                  height={160}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-            )}
-
-            {/* Info */}
+            <span className="text-[26px] font-extralight text-black/10 group-hover:text-[#b5737a]/30 transition-colors duration-300 pt-1 shrink-0 w-8 text-right">
+              {String((currentPage - 1) * POSTS_PER_PAGE + index + 1).padStart(2, "0")}
+            </span>
             <div className="flex flex-col justify-center min-w-0">
-              {post.series_name && (
-                <span className="text-xs text-black mb-2 group-hover:text-[#b5737a] transition-colors duration-300">
-                  {post.series_name}
-                </span>
-              )}
-              <h2 className="text-lg md:text-xl font-light text-black mb-2 group-hover:text-[#b5737a] transition-colors duration-300">
+              <h2 className="text-[16px] md:text-[18px] font-light text-black mb-2 group-hover:text-[#b5737a] transition-colors duration-300">
                 {post.title}
               </h2>
-              <p className="text-sm text-black line-clamp-2 mb-3 group-hover:text-[#b5737a] transition-colors duration-300">
-                {post.excerpt}
-              </p>
-              <div className="flex items-center gap-3 text-xs text-black group-hover:text-[#b5737a] transition-colors duration-300">
+              <div className="flex items-center gap-3 text-[14px] text-black/30 group-hover:text-[#b5737a] transition-colors duration-300">
+                <span>{post.category}</span>
+                <span>·</span>
                 <span>{post.author}</span>
                 <span>·</span>
                 <span>{formatDate(post.published_at)}</span>

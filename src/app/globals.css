@@ -14,7 +14,7 @@
   --color-accent: var(--accent);
   --color-muted: var(--muted);
   --color-border: var(--border);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-noto-sans-kr);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -39,7 +39,7 @@ html.lenis body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -73,4 +73,96 @@ body {
 ::selection {
   background: var(--accent);
   color: white;
+}
+
+/* Serial Content */
+.serial-content p {
+  color: #111;
+  font-family: var(--font-gamja-flower), cursive;
+  font-size: 18px;
+  line-height: 1.4;
+  text-align: justify;
+  margin-bottom: 0;
+}
+
+.serial-content p:empty,
+.serial-content p:has(> br:only-child) {
+  min-height: 1em;
+}
+
+.serial-content em {
+  font-style: italic;
+}
+
+.serial-content strong {
+  font-weight: 600;
+}
+
+.serial-content h2 {
+  color: #111;
+  font-weight: 300;
+  font-size: 1.25rem;
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+}
+
+.serial-content h3 {
+  color: #111;
+  font-weight: 300;
+  font-size: 1.1rem;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.serial-content blockquote {
+  border-left: 2px solid #b5737a;
+  padding-left: 1rem;
+  margin: 1.5em 0;
+  color: #111;
+  font-style: italic;
+}
+
+.serial-content a {
+  color: #b5737a;
+  text-decoration: underline;
+}
+
+.serial-content ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1.25em;
+}
+
+.serial-content ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 1.25em;
+}
+
+.serial-content li {
+  margin-bottom: 0.25em;
+}
+
+.serial-content hr {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  margin: 2em 0;
+}
+
+.serial-content img {
+  border-radius: 0.25rem;
+  max-width: 100%;
+}
+
+/* Tiptap Editor */
+.ProseMirror:focus {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  height: 0;
 }

@@ -1,16 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Noto_Sans_KR, Geist_Mono, Gamja_Flower } from "next/font/google";
 import SmoothScrollProvider from "@/providers/SmoothScrollProvider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const notoSansKR = Noto_Sans_KR({
+  variable: "--font-noto-sans-kr",
   subsets: ["latin"],
+  weight: ["100", "300", "400", "500", "700"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const gamjaFlower = Gamja_Flower({
+  variable: "--font-gamja-flower",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -30,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${notoSansKR.variable} ${geistMono.variable} ${gamjaFlower.variable} antialiased`}
       >
         <SmoothScrollProvider>{children}</SmoothScrollProvider>
       </body>

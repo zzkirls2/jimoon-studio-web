@@ -5,22 +5,28 @@ import ReactMarkdown from "react-markdown";
 import type { SerialPost } from "@/types/serial";
 import FadeIn from "@/components/animations/FadeIn";
 
+function isHTML(str: string) {
+  return /^<[a-z][\s\S]*>/i.test(str.trim());
+}
+
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("ko-KR", {
+  const d = new Date(dateStr);
+  const date = d.toLocaleDateString("ko-KR", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
+  const hour = d.getHours();
+  const minute = String(d.getMinutes()).padStart(2, "0");
+  return `${date} ${hour}시 ${minute}분`;
 }
 
 export default function SerialDetailContent({
   post,
-  seriesPosts,
   prevPost,
   nextPost,
 }: {
   post: SerialPost;
-  seriesPosts: SerialPost[];
   prevPost: { id: string; title: string } | null;
   nextPost: { id: string; title: string } | null;
 }) {
@@ -30,66 +36,46 @@ export default function SerialDetailContent({
       <FadeIn>
         <Link
           href="/serial"
-          className="text-sm text-black hover:text-[#b5737a] transition-colors mb-8 inline-block"
+          className="text-xs text-black/30 hover:text-[#b5737a] transition-colors mb-8 inline-block"
         >
           &larr; 목록으로
         </Link>
 
-        {post.series_name && (
-          <p className="text-sm text-black mb-3">{post.series_name}</p>
-        )}
-
-        <h1 className="text-3xl md:text-4xl font-extralight text-black mb-4 leading-tight">
+        <h1 className="text-[22px] font-extralight text-black mb-12 leading-relaxed">
           {post.title}
         </h1>
-
-        <div className="flex items-center gap-3 text-sm text-black mb-12">
-          <span>{post.author}</span>
-          <span>·</span>
-          <span>{formatDate(post.published_at)}</span>
-        </div>
       </FadeIn>
 
       {/* Content */}
       <FadeIn delay={0.1}>
-        <article className="prose prose-neutral max-w-none mb-16 [&_p]:text-black [&_p]:leading-[2] [&_h2]:text-black [&_h2]:font-light [&_h2]:text-xl [&_h3]:text-black [&_h3]:font-light [&_blockquote]:border-[#b5737a] [&_blockquote]:text-black [&_a]:text-[#b5737a] [&_img]:rounded">
-          <ReactMarkdown>{post.content}</ReactMarkdown>
+        <article className="serial-content mb-10">
+          {isHTML(post.content) ? (
+            <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          ) : (
+            <ReactMarkdown>{post.content}</ReactMarkdown>
+          )}
         </article>
-      </FadeIn>
 
-      {/* Series List */}
-      {seriesPosts.length > 1 && (
-        <div className="mb-16 p-6 bg-black/[0.02] border border-black/5">
-          <p className="text-sm font-medium text-black mb-4">
-            {post.series_name}
-          </p>
-          <div className="flex flex-col gap-2">
-            {seriesPosts.map((sp, i) => (
-              <Link
-                key={sp.id}
-                href={`/serial/${sp.id}`}
-                className={`text-sm py-1 transition-colors duration-300 ${
-                  sp.id === post.id
-                    ? "text-[#b5737a] font-medium"
-                    : "text-black hover:text-[#b5737a]"
-                }`}
-              >
-                {i + 1}. {sp.title}
-              </Link>
-            ))}
+        <div className="border-t border-black/10 pt-4 mb-0">
+          <div className="flex items-center gap-3 text-xs text-black/40">
+            <span>{post.category}</span>
+            <span>·</span>
+            <span>{post.author}</span>
+            <span>·</span>
+            <span>{formatDate(post.published_at)}</span>
           </div>
         </div>
-      )}
+      </FadeIn>
 
       {/* Prev / Next */}
-      <div className="flex justify-between items-stretch gap-4 border-t border-black/10 pt-8">
+      <div className="flex justify-between items-stretch gap-4 pt-8">
         {prevPost ? (
           <Link
             href={`/serial/${prevPost.id}`}
             className="group flex-1 text-left"
           >
-            <span className="text-xs text-black mb-1 block">이전글</span>
-            <span className="text-sm text-black group-hover:text-[#b5737a] transition-colors">
+            <span className="text-xs text-black/40 group-hover:text-[#b5737a] mb-1 block transition-colors">이전글</span>
+            <span className="text-xs text-black/40 group-hover:text-[#b5737a] transition-colors">
               {prevPost.title}
             </span>
           </Link>
@@ -102,8 +88,8 @@ export default function SerialDetailContent({
             href={`/serial/${nextPost.id}`}
             className="group flex-1 text-right"
           >
-            <span className="text-xs text-black mb-1 block">다음글</span>
-            <span className="text-sm text-black group-hover:text-[#b5737a] transition-colors">
+            <span className="text-xs text-black/40 group-hover:text-[#b5737a] mb-1 block transition-colors">다음글</span>
+            <span className="text-xs text-black/40 group-hover:text-[#b5737a] transition-colors">
               {nextPost.title}
             </span>
           </Link>
