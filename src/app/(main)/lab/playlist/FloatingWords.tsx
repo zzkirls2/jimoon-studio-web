@@ -129,7 +129,7 @@ export default function FloatingWords({ lyricsData, loading }: FloatingWordsProp
       { text: "William Shakespeare",       x: 60, y: 25 },
       { text: "We all make his praise",    x: 38, y: 10 },
       { text: "I am a weakish speller",    x: 2,  y: 32 },
-      { text: "I'll make a wise phrase",   x: 68, y: 48 },
+      { text: "I'll make a wise phrase",   x: 50, y: 38 },
       { text: "He as me, will sparke ai",  x: 3,  y: 68 },
       { text: "He's like a lamp, I swear", x: 35, y: 80 },
       { text: "Hear me as I will speak",   x: 18, y: 88 },
