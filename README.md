@@ -1,9 +1,4 @@
-# Publisher — Premium Literary Works
-
-**Publisher**는 출판사를 위한 고성능 비즈니스 웹사이트입니다.
-삼성전자 뉴스룸 수준 이상의 부드러운 스크롤 경험과 미학적으로 완성도 높은 UI를 목표로 설계되었습니다.
-회원 인증, 도서 카탈로그, 장바구니, 결제까지 이커머스의 전체 흐름을 포함합니다.
-
+# Jimoon Studio Web
 ---
 
 ## Tech Stack
