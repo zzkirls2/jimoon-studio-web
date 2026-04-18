@@ -1,4 +1,4 @@
-export default function FingerprintGamePage() {
+export default function GamePage() {
   return (
     <div className="pt-14 h-screen">
       <iframe
